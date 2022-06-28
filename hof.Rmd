@@ -1,19 +1,55 @@
 ---
-title: "Baseball Hall of Fame"
-output: html_document
 date: '2022-06-28'
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(rvest)
+library(janitor)
 library(tidyverse)
 ```
 
-Here is a useful link: https://en.wikipedia.org/wiki/List_of_members_of_the_Baseball_Hall_of_Fame
 
-```{r}
+```{r get_data}
+# GadgetSelector is still a mystery to me. I just guessed that "table" would
+# work. Not sure if something like "td" would be different and/or better. Would
+# be nice to specify the exact table I want, rather than getting 6 of them.
+
+all_tables <- "https://en.wikipedia.org/wiki/List_of_members_of_the_Baseball_Hall_of_Fame" |> 
+  read_html() |> 
+  html_elements("table") |> 
+  html_table()
+```
+
+```{r clean_data}
+# These year errors are caused by reference footnotes read in as part of the
+# year. Would be cool to detect and fix these automatically, perhaps by dropping
+# the last character in any year with 5 digits. That way, if there are footnotes
+# in future years, they are caught/fixed automatically.
+
+x <- all_tables[[3]] |> 
+  clean_names() |> 
+  mutate(year = ifelse(year == 19425, 1942, year)) |> 
+  mutate(year = ifelse(year == 19445, 1944, year)) |> 
+  mutate(year = ifelse(year == 20206, 2020, year)) 
 
 ```
+
+
+```{r plot_data}
+# Note that geom_bar() calculates the number of inductees each year for us. No
+# need for group_by() and summarize(). Is there a way to include the link to the
+# exact Wikipedia page as a link, rather than as an ugly text string?
+
+x |> 
+  ggplot(aes(x = year)) +
+    geom_bar() +
+    labs(title = "Baseball Hall of Fame Inductions",
+         subtitle = "Spike in 2006 associated with Negro League inclusion",
+         x = "Year",
+         y = "Number of Inductees",
+         caption = "Data: Wikipedia")
+```
+
 
 
