@@ -1,0 +1,19 @@
+---
+title: "Baseball Hall of Fame"
+output: html_document
+date: '2022-06-28'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rvest)
+library(tidyverse)
+```
+
+Here is a useful link: https://en.wikipedia.org/wiki/List_of_members_of_the_Baseball_Hall_of_Fame
+
+```{r}
+
+```
+
+
